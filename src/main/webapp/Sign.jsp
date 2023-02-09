@@ -24,7 +24,7 @@
 		document.signForm.id.focus();
 	}
 	
-	function signMsg(){
+	function signMsg() {
 		var form = document.signForm;
 		if(form.idCheckResult.value=="0"){
 			alert("아이디 중복 확인을 해주세요.");
@@ -78,6 +78,7 @@
 			alert("입사일을 입력해주세요.");
 			return false;
 		} else {
+			alert(form.name.value+"님, 가입을 축하드립니다.");
 			form.action = "SignProcess.jsp";
 			form.method = "post";
 			form.submit();
@@ -171,8 +172,7 @@
 							placeholder="비밀번호" style="margin-right:10px">
 					<button type="button" onclick="showPw(this)" class="btn btn-link"
 							style="width:30px; height:38px; padding:0px" name="pwBTN">
-						<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbXSbT_uQsRZK3d7_yUvwvn-aR0hwKb5qqMWzAQmRz4nyjcr48xEGExToxuOrnxD07zEY&usqp=CAU"
-							alt="표시" style="width:24px; height:24px">
+						<img src="./img/icon_eye.png" alt="표시" style="width:24px; height:24px">
 					</button>
 				</div>
 			</div>
@@ -184,8 +184,7 @@
 							placeholder="비밀번호 확인" style="margin-right:10px">
 					<button type="button" onclick="showPw(this)" class="btn btn-link"
 							style="width:30px; height:38px; padding:0px" name="pwcBTN">
-						<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbXSbT_uQsRZK3d7_yUvwvn-aR0hwKb5qqMWzAQmRz4nyjcr48xEGExToxuOrnxD07zEY&usqp=CAU"
-							alt="표시" style="width:24px; height:24px">
+						<img src="./img/icon_eye.png" alt="표시" style="width:24px; height:24px">
 					</button>
 				</div>
 			</div>

@@ -24,14 +24,29 @@
 			form.submit();
 		}
 	}
+	
 	function logoutMsg() {
 		alert("로그아웃되었습니다.");
+	}
+	
+	var clicked = false;
+	function showPw(obj) {
+		var pw = document.getElementsByName("loginPw");
+		if(!clicked) {
+			pw[0].setAttribute('type', 'text');
+			clicked = true;
+			console.log(pw[0].getAttribute('type')+" "+clicked);
+		} else {
+			pw[0].setAttribute('type', 'password');
+			clicked = false;
+			console.log(pw[0].getAttribute('type')+" "+clicked);
+		}
 	}
 </script>
 
 <div class="container" style="background:white; width:500px; height:400px;
 								border-radius:30px; justify-content:center">
-	<div class="row" style="justify-content:center; margin-top:40%">
+	<div class="row" style="justify-content:center; margin-top:50%">
 	
 		<div align="center">
 			<h1 class="display-3" style="color:#5882FA; font-size:3.3rem;
@@ -44,18 +59,25 @@
 		<% if(session.getAttribute("id") == null ) { %>
 			<form name="loginForm">
 				<div class="row" style="margin-bottom:10px; align-items:center">
-					<label class="col-md-4">아이디</label>
-					<div class="col-md-4">
+					<label class="col-md-auto" style="width:120px">아이디</label>
+					<div class="col-md-auto form-inline">
 						<input type="text" name="loginId" class="form-control"
-						style="width:200px">
+								oninput="this.value=this.value.replace(/[\W]/, '');"
+								placeholder="아이디" style="width:200px">
 					</div>
 				</div>
 				
 				<div class="row" style="margin-bottom:54px; align-items:center">
-					<label class="col-md-4">비밀번호</label>
-					<div class="col-md-4">
+					<label class="col-md-auto" style="width:120px">비밀번호</label>
+					<div class="col-md-auto form-inline">
 						<input type="password" name="loginPw" class="form-control"
-						style="width:200px">
+								oninput="this.value=this.value.replace(/[\W]/, '');"
+								style="width:200px; margin-right:10px"
+								placeholder="비밀번호">
+						<button type="button" onclick="showPw(this)" class="btn btn-link"
+								style="width:30px; height:38px; padding:0px" name="pwBTN">
+							<img src="./img/icon_eye.png" alt="표시" style="width:24px; height:24px">
+						</button>
 					</div>
 				</div>
 				

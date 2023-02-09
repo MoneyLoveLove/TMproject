@@ -125,17 +125,27 @@
 			</div>
 			<div class="form-group row" style="align-items: center">
 				<label class="col-md-3" style="font-weight:bold">비밀번호 변경</label>
-				<div class="col-md-auto">
+				<div class="col-md-auto form-inline">
 					<input type="password" name="password" class="form-control"
 							oninput="this.value=this.value.replace(/[\W]/, '');"
-							placeholder="비밀번호" value="<%=dto.getmPw() %>">
+							placeholder="비밀번호" value="<%=dto.getmPw() %>"
+							style="margin-right:10px">
+					<button type="button" onclick="showPw(this)" class="btn btn-link"
+							style="width:30px; height:38px; padding:0px" name="pwBTN">
+						<img src="./img/icon_eye.png" alt="표시" style="width:24px; height:24px">
+					</button>
 				</div>
 			</div>
 			<div class="form-group row" style="align-items: center">
 				<label class="col-md-3" style="font-weight:bold">비밀번호 확인</label>
-				<div class="col-md-auto">
+				<div class="col-md-auto form-inline">
 					<input type="password" name="password_confirm" class="form-control"
-							placeholder="비밀번호 확인">
+							oninput="this.value=this.value.replace(/[\W]/, '');"
+							placeholder="비밀번호 확인"  style="margin-right:10px">
+					<button type="button" onclick="showPw(this)" class="btn btn-link"
+							style="width:30px; height:38px; padding:0px" name="pwcBTN">
+						<img src="./img/icon_eye.png" alt="표시" style="width:24px; height:24px">
+					</button>
 				</div>	
 			</div>
 			<div class="form-group row" style="align-items: center">

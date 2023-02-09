@@ -19,8 +19,6 @@
 	
 	java.sql.Date join = java.sql.Date.valueOf(request.getParameter("join"));
 	
-	id = team.toLowerCase();
-	
 	MemberDTO dto = new MemberDTO();
 	dto.setmId(id);
 	dto.setmPw(password);
@@ -35,6 +33,5 @@
 	MemberDAO dao = new MemberDAO();
 	dao.insertMember(dto);
 	
-	session.setAttribute("signId", dto.getmId());
-	response.sendRedirect("SignComplete.jsp");
+	response.sendRedirect("LoginForm.jsp");
 %>

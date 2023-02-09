@@ -80,7 +80,7 @@ public class MemberDAO extends JDBConnect {
 	}
 	
 	public String nameS(String mId) {
-		String query = "select distinct M_NAME from member M join msg S on M.M_ID=S.SENDER where M_ID=?";
+		String query = "select distinct M_NAME from member where M_ID=?";
 		String name = null;
 		
 		try {
@@ -100,7 +100,7 @@ public class MemberDAO extends JDBConnect {
 	}
 	
 	public String nameR(String mId) {
-		String query = "select distinct M_NAME from member M join msg S on M.M_ID=S.RECEIVER where M_ID=?";
+		String query = "select distinct M_NAME from member where M_ID=?";
 		String name = null;
 		
 		try {

@@ -50,7 +50,7 @@
 					<label class="col-md-4">비밀번호</label>
 					<div class="col-md-4">
 						<input type="password" name="pwChk" class="form-control"
-						style="width:200px">
+							style="width:200px" placeholder="비밀번호">
 					</div>
 				</div>
 				

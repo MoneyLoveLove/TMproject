@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     
-<link rel="shortcut icon" type="image/x-icon" href="https://pngimg.com/uploads/email/email_PNG14.png">
+<link rel="shortcut icon" type="image/x-icon" href="./img/icon_mail.png">
 <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
 <!DOCTYPE html>

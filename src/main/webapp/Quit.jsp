@@ -32,6 +32,7 @@
 			alert("퇴사일을 입력해주세요.");
 			return false;
 		} else {
+			alert("퇴사처리 되었습니다.");
 			form.action = "QuitProcess.jsp" 
 			form.method = "post";
 			form.submit();
