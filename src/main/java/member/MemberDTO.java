@@ -13,6 +13,7 @@ public class MemberDTO {
 	private String mAddr;
 	private String mEmail;
 	private java.sql.Date mJoin;
+	private java.sql.Date mQuit;
 	private boolean mLeader;
 	
 	public String getmId() {
@@ -80,6 +81,12 @@ public class MemberDTO {
 	}
 	public void setmJoin(java.sql.Date mJoin) {
 		this.mJoin = mJoin;
+	}
+	public java.sql.Date getmQuit() {
+		return mQuit;
+	}
+	public void setmQuit(java.sql.Date mQuit) {
+		this.mQuit = mQuit;
 	}
 	public boolean ismLeader() {
 		return mLeader;

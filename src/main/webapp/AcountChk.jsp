@@ -7,12 +7,12 @@
 	String mPw = session.getAttribute("pw").toString();
 %>
 
-<jsp:include page="CSS.jsp"></jsp:include>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Team Messenger</title>
+<jsp:include page="CSS.jsp"></jsp:include>
 </head>
 <body style="overflow:hidden">
 
@@ -29,7 +29,7 @@
 			alert("비밀번호가 잘못되었습니다.");
 			return false;
 		} else {
-			form.action = "Update.jsp";
+			form.action = "MyUpdate.jsp";
 			form.method = "post";
 			form.submit();
 		}

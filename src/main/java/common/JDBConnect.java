@@ -21,7 +21,7 @@ public class JDBConnect {
 			String pwd = "1234";
 			con = DriverManager.getConnection(url, id, pwd);
 			
-			System.out.println("DB Connection Successfully");
+			System.out.println("Connected");
 		}
 		catch(Exception e) {
 			System.out.println("Disconnected");

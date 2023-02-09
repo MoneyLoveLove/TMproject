@@ -11,36 +11,42 @@
 	MsgDAO dao = new MsgDAO();
 	MemberDAO daoMem = new MemberDAO();
 	int MsgCode = Integer.parseInt(request.getParameter("MsgCode"));
+	String uri;
 	SimpleDateFormat dateFormat= new SimpleDateFormat("yy-MM-dd HH:mm");
 
 	MsgDTO dto;
 	
 	if(request.getHeader("referer").matches("(.*)RCV(.*)")) {
+		uri = "RCV";
 		dto = dao.selectView(MsgCode);
 		dao.openMsg(MsgCode);
 	} else if(request.getHeader("referer").matches("(.*)IMP(.*)")) {
+		uri = "IMP";
 		dto = dao.selectImpViewR(MsgCode);
 		dao.openMsg(MsgCode);
 		if(dto.getMsgTitle() == null) {
+			uri = "IMP";
 			dto = dao.selectImpViewS(MsgCode);
 		}
 	} else if(request.getHeader("referer").matches("(.*)SND(.*)")) {
+		uri = "SND";
 		dto = dao.selectSndView(MsgCode);
 	} else if(request.getHeader("referer").matches("(.*)DEL(.*)")) {
+		uri = "DEL";
 		dto = dao.selectDelView(MsgCode);
 	} else {
 		return;
 	}
-	
+
 	dao.close();
 %>
 
-<jsp:include page="CSS.jsp"></jsp:include>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Team Messenger</title>
+<jsp:include page="CSS.jsp"></jsp:include>
 </head>
 <body>
 
@@ -60,6 +66,7 @@
 			return;
 		}
 	}
+	
 	function deleteSndMsg() {
 		var form = document.viewForm;
 		var confirmed = confirm("메세지를 삭제하시겠습니까?");
@@ -72,6 +79,7 @@
 			return;
 		}
 	}
+	
 	function deleteImpMsg() {
 		var form = document.viewForm;
 		var confirmed = confirm("메세지를 삭제하시겠습니까?");
@@ -96,6 +104,13 @@
 			return;
 		}
 	}
+	
+	function downMsg() {
+		var form = document.viewForm;
+		form.method = "post";
+		form.action = "FileDown.jsp";
+		form.submit();
+	}
 </script>
 
 <nav class="navbar">
@@ -104,6 +119,8 @@
 
 		<form name="viewForm">
 			<input type="hidden" name="code" value="<%=MsgCode %>">
+			<input type="hidden" name="uriV" value="<%=uri %>">
+		
 			<table class="table" width="100%" style="border-bottom:lightgray 1px solid">
 				<tr>
 					<td width="140px"><b>제목</b></td>
@@ -112,27 +129,35 @@
 				</tr>
 				<tr>
 					<td><b>보낸 사람</b></td>
-					<td colspan="2"><%=daoMem.nameS(dto.getMsgSender()) %></td>
+					<td colspan="2">
+						[<%=daoMem.nameT(dto.getMsgSender()) %>]
+						<%=daoMem.nameS(dto.getMsgSender()) %>
+						<%=daoMem.nameP(dto.getMsgSender()) %>
+					</td>
 				<tr>
 				<tr>
 					<td><b>받는 사람</b></td>
-					<td colspan="2"><%=daoMem.nameR(dto.getMsgReceiver()) %></td>
+					<td colspan="2">
+						[<%=daoMem.nameT(dto.getMsgReceiver()) %>]
+						<%=daoMem.nameR(dto.getMsgReceiver()) %>
+						<%=daoMem.nameP(dto.getMsgReceiver()) %>
+					</td>
 				<tr>
 					<td><b>내용</b></td>
 					<td colspan="2" height="100px">
-						<%=dto.getMsgContent() %></td>
+						<%=dto.getMsgContent().replace("\r\n","<br/>") %></td>
 				</tr>
 				
 				<% if(dto.getMsgFName() != null) { %>
-				<tr>
-					<td><b>첨부파일</b></td>
-					<td colspan="2">
-						<a href="FileDown.jsp?MsgCode=<%=dto.getMsgCode() %>"
-							onclick="downMsg()">
-								<%=dto.getMsgFName() %></a></td>
-				</tr>
+					<tr>
+						<td><b>첨부파일</b></td>
+						<td colspan="2">
+							<button type="button" class="btn btn-link" style="padding:0px"
+								onclick="downMsg()"><%=dto.getMsgFName() %></button>
+						</td>
+					</tr>
 				<% } %>
-				</table>
+			</table>
 				
 				<% if(request.getHeader("referer").matches("(.*)RCV(.*)")) { %>
 					<button type="button" class="btn btn-link"

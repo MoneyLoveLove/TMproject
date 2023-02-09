@@ -228,8 +228,8 @@ public class MsgDAO extends JDBConnect {
 	
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ select key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 	
-	/* paging, search 메소드로 대체
-	 * 
+	// selectPage 메소드로 대체
+	/* 
 	public List<MsgDTO> selectMsg(String mId) {
 		List<MsgDTO> msgList = new Vector<>();
 		String query = "select * from msg";
@@ -617,6 +617,8 @@ public class MsgDAO extends JDBConnect {
 	
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ search key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 	
+	// selectPage 메소드로 대체
+	/*
 	public List<MsgDTO> searchMsg(Map<String, Object> map) {
 		List<MsgDTO> searchList = new Vector<>();
 		
@@ -652,21 +654,33 @@ public class MsgDAO extends JDBConnect {
 		}
 		return searchList;
 	}
+	*/
 	
 // ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ paging key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 	
 	public int selectCountR(String mId, Map map) {
-		int result=0;
-		String query = "select count(*) from msg where RECEIVER=?";
+		int result = 0;
+		String query = "select count(*) from msg M";
 		
-		if(map.get("searchWord") != null) {
-			query += " and " + map.get("searchField") + " Like '%" + map.get("searchWord") + "%'"; 
+		if(mId != null) {
+			if(map.get("searchField") != null) {
+				if(map.get("searchField").equals("RECEIVER") || map.get("searchField").equals("SENDER")) {
+					query += " join member MEM on MEM.M_ID = M."+map.get("searchField")
+							+ " where ((MEM.M_NAME like '%"+map.get("searchWord")+"%')"
+							+ " or (MEM.M_ID like '%"+map.get("searchWord")+"%'))";
+				} else {
+					query += " where M."+map.get("searchField")+" like '%"+map.get("searchWord")+"%'";
+				}
+				query += " and M.RECEIVER = ?";
+			} else {
+				query += " where M.RECEIVER = ?";
+			}
 		}
 		
 		try {
 			psmt = con.prepareStatement(query);
-			
 			psmt.setString(1, mId);
+			
 			rs = psmt.executeQuery();
 			if(rs.next()) {
 				result=rs.getInt(1);
@@ -681,22 +695,30 @@ public class MsgDAO extends JDBConnect {
 	
 	public List<MsgDTO> selectPageR(String mId, int start, int pageCount, Map map){
 		List<MsgDTO> pageList = new Vector<MsgDTO>();
-		String query = "select * from msg"; 
+		String query = "select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP, MSG_OPENED"
+				+ " from msg M";
 		
 		if(mId != null) {
-			query += " where RECEIVER = ? ";
-			if(map.get("searchWord") != null) {
-				query += " and " + map.get("searchField")
-						+ " like '%" + map.get("searchWord") + "%'";
+			if(map.get("searchField") != null) {
+				if(map.get("searchField").equals("RECEIVER") || map.get("searchField").equals("SENDER")) {
+					query += " join member MEM on MEM.M_ID = M."+map.get("searchField")
+							+ " where ((MEM.M_NAME like '%"+map.get("searchWord")+"%')"
+							+ " or (MEM.M_ID like '%"+map.get("searchWord")+"%'))";
+				} else {
+					query += " where M."+map.get("searchField")+" like '%"+map.get("searchWord")+"%'";
+				}
+				query += " and M.RECEIVER = ?";
+			} else {
+				query += " where M.RECEIVER = ?";
 			}
-		} query += " order by MSG_DATE desc limit ?, ?";
+		} query += " order by M.MSG_DATE desc limit ?, ?";
 		
 		try {
 			psmt = con.prepareStatement(query);
-			
 			psmt.setString(1, mId);
 			psmt.setInt(2, start);
 			psmt.setInt(3, pageCount);
+			
 			rs = psmt.executeQuery();
 			
 			while(rs.next()) {
@@ -722,90 +744,23 @@ public class MsgDAO extends JDBConnect {
 		return pageList;
 	}
 	
-	public int selectCountI(String mId, Map map) {
-		int result=0;
-		String query = "select count(*)"
-				+ " from ("
-				+ "select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
-				+ " from msg where RECEIVER=? and MSG_IMP='IMP'"
-				+ " union all"
-				+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
-				+ " from snd_msg where SENDER=? and MSG_IMP='IMP') a";
-		if(map.get("searchWord") != null) {
-			query += " where " + map.get("searchField") + " Like '%" + map.get("searchWord") + "%'"; 
-		}
-		
-		try {
-			psmt = con.prepareStatement(query);
-			psmt.setString(1, mId);
-			psmt.setString(2, mId);
-			rs = psmt.executeQuery();
-			if(rs.next()) {
-				result=rs.getInt(1);
-			}
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			System.out.println("selectCountI error");
-		}
-		return result;
-	}
-	
-	public List<MsgDTO> selectPageI(String mId, int start, int pageCount, Map map){
-		List<MsgDTO> pageList = new Vector<MsgDTO>();
-		String query = "select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
-				+ " from ("
-				+ "select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
-				+ " from msg";
-		
-		if(mId != null) {
-			query += " where RECEIVER=? and MSG_IMP='IMP'"
-					+ " union all"
-					+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
-					+ " from snd_msg where SENDER=? and MSG_IMP='IMP') a";
-			if(map.get("searchWord") != null) {
-				query += " where " + map.get("searchField")
-						+ " like '%" + map.get("searchWord") + "%'";
-			}
-		} query += " order by MSG_DATE desc limit ?, ?";
-		
-		try {
-			psmt = con.prepareStatement(query);
-			
-			psmt.setString(1, mId);
-			psmt.setString(2, mId);
-			psmt.setInt(3, start);
-			psmt.setInt(4, pageCount);
-			rs = psmt.executeQuery();
-			
-			while(rs.next()) {
-				MsgDTO dto = new MsgDTO();
-				dto.setMsgCode(rs.getInt("MSG_CODE"));
-				dto.setMsgSender(rs.getString("SENDER"));
-				dto.setMsgReceiver(rs.getString("RECEIVER"));
-				dto.setMsgTitle(rs.getString("MSG_TITLE"));
-				dto.setMsgContent(rs.getString("MSG_CNT"));
-				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
-				dto.setMsgFName(rs.getString("MSG_FNAME"));
-				dto.setMsgFPath(rs.getString("MSG_FPATH"));
-				dto.setMsgImp(rs.getString("MSG_IMP"));
-				
-				pageList.add(dto);
-			}
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			System.out.println("selectPageI error");
-		}
-		return pageList;
-	}
-	
 	public int selectCountS(String mId, Map map) {
 		int result=0;
-		String query = "select count(*) from snd_msg where SENDER=?";
+		String query = "select count(*) from snd_msg S";
 		
-		if(map.get("searchWord") != null) {
-			query += " and " + map.get("searchField") + " Like '%" + map.get("searchWord") + "%'"; 
+		if(mId != null) {
+			if(map.get("searchField") != null) {
+				if(map.get("searchField").equals("RECEIVER") || map.get("searchField").equals("SENDER")) {
+					query += " join member MEM on MEM.M_ID = S."+map.get("searchField")
+							+ " where ((MEM.M_NAME like '%"+map.get("searchWord")+"%')"
+							+ " or (MEM.M_ID like '%"+map.get("searchWord")+"%'))";
+				} else {
+					query += " where S."+map.get("searchField")+" like '%"+map.get("searchWord")+"%'";
+				}
+				query += " and S.SENDER = ?";
+			} else {
+				query += " where S.SENDER = ?";
+			}
 		}
 		
 		try {
@@ -826,15 +781,23 @@ public class MsgDAO extends JDBConnect {
 	
 	public List<MsgDTO> selectPageS(String mId, int start, int pageCount, Map map){
 		List<MsgDTO> pageList = new Vector<MsgDTO>();
-		String query = "select * from snd_msg"; 
+		String query = "select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+				+ " from snd_msg S"; 
 		
 		if(mId != null) {
-			query += " where SENDER = ? ";
-			if(map.get("searchWord") != null) {
-				query += " and " + map.get("searchField")
-						+ " like '%" + map.get("searchWord") + "%'";
+			if(map.get("searchField") != null) {
+				if(map.get("searchField").equals("RECEIVER") || map.get("searchField").equals("SENDER")) {
+					query += " join member MEM on MEM.M_ID = S."+map.get("searchField")
+							+ " where ((MEM.M_NAME like '%"+map.get("searchWord")+"%')"
+							+ " or (MEM.M_ID like '%"+map.get("searchWord")+"%'))";
+				} else {
+					query += " where S."+map.get("searchField")+" like '%"+map.get("searchWord")+"%'";
+				}
+				query += " and S.SENDER = ?";
+			} else {
+				query += " where S.SENDER = ?";
 			}
-		} query += " order by MSG_DATE desc limit ?, ?";
+		} query += " order by S.MSG_DATE desc limit ?, ?";
 		
 		try {
 			psmt = con.prepareStatement(query);
@@ -867,16 +830,45 @@ public class MsgDAO extends JDBConnect {
 
 	public int selectCountD(String mId, Map map) {
 		int result=0;
-		String query = "select count(*) from del_msg where RECEIVER=?";
+		String query = "select distinct count(*) from (";
 		
-		if(map.get("searchWord") != null) {
-			query += " and " + map.get("searchField") + " Like '%" + map.get("searchWord") + "%'"; 
-		}
+		if(mId != null) {
+			if(map.get("searchField") != null) {
+				if(map.get("searchField").equals("RECEIVER") || map.get("searchField").equals("SENDER")) {
+					query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+							+ " from del_msg D join member MEM on MEM.M_ID=D."+map.get("searchField")
+							+ " where ((MEM.M_NAME like '%"+map.get("searchWord")+"%') or (MEM.M_ID like '%"+map.get("searchWord")+"%'))"
+							+ " and D.RECEIVER=?"
+							+ " union all"
+							+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+							+ " from del_msg D join member MEM on MEM.M_ID=D."+map.get("searchField")
+							+ " where ((MEM.M_NAME like '%"+map.get("searchWord")+"%') or (MEM.M_ID like '%"+map.get("searchWord")+"%'))"
+							+ " and D.SENDER=?";
+				} else {
+					query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+							+ " from del_msg D join member MEM on MEM.M_ID=D.RECEIVER"
+							+ " where D."+map.get("searchField")+" like '%"+map.get("searchWord")+"%'"
+							+ " and D.RECEIVER=?"
+							+ " union all"
+							+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+							+ " from del_msg D join member MEM on MEM.M_ID=D.SENDER"
+							+ " where D."+map.get("searchField")+" like '%"+map.get("searchWord")+"%'"
+							+ " and D.SENDER=?";
+				}
+			} else {
+				query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+						+ " from del_msg D where D.RECEIVER = ?"
+						+ " union all"
+						+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+						+ " from del_msg D where D.SENDER = ?";
+			}
+		} query += ") a";
 		
 		try {
 			psmt = con.prepareStatement(query);
-			
 			psmt.setString(1, mId);
+			psmt.setString(2, mId);
+			
 			rs = psmt.executeQuery();
 			if(rs.next()) {
 				result=rs.getInt(1);
@@ -891,21 +883,47 @@ public class MsgDAO extends JDBConnect {
 	
 	public List<MsgDTO> selectPageD(String mId, int start, int pageCount, Map map){
 		List<MsgDTO> pageList = new Vector<MsgDTO>();
-		String query = "select * from del_msg"; 
+		String query = "select distinct MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+				+ " from (";
 		
 		if(mId != null) {
-			query += " where RECEIVER = ? ";
-			if(map.get("searchWord") != null) {
-				query += " and " + map.get("searchField")
-						+ " like '%" + map.get("searchWord") + "%'";
+			if(map.get("searchField") != null) {
+				if(map.get("searchField").equals("RECEIVER") || map.get("searchField").equals("SENDER")) {
+					query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+							+ " from del_msg D join member MEM on MEM.M_ID=D."+map.get("searchField")
+							+ " where ((MEM.M_NAME like '%"+map.get("searchWord")+"%') or (MEM.M_ID like '%"+map.get("searchWord")+"%'))"
+							+ " and D.RECEIVER=?"
+							+ " union all"
+							+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+							+ " from del_msg D join member MEM on MEM.M_ID=D."+map.get("searchField")
+							+ " where ((MEM.M_NAME like '%"+map.get("searchWord")+"%') or (MEM.M_ID like '%"+map.get("searchWord")+"%'))"
+							+ " and D.SENDER=?";
+				} else {
+					query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+							+ " from del_msg D join member MEM on MEM.M_ID=D.RECEIVER"
+							+ " where D."+map.get("searchField")+" like '%"+map.get("searchWord")+"%'"
+							+ " and D.RECEIVER=?"
+							+ " union all"
+							+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+							+ " from del_msg D join member MEM on MEM.M_ID=D.SENDER"
+							+ " where D."+map.get("searchField")+" like '%"+map.get("searchWord")+"%'"
+							+ " and D.SENDER=?";
+				}
+			} else {
+				query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+						+ " from del_msg D where D.RECEIVER = ?"
+						+ " union all"
+						+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH"
+						+ " from del_msg D where D.SENDER = ?";
 			}
-		} query += " order by MSG_DATE desc limit ?, ?";
+		} query += ") a order by MSG_DATE desc limit ?, ?";
 		
 		try {
 			psmt = con.prepareStatement(query);
 			psmt.setString(1, mId);
-			psmt.setInt(2, start);
-			psmt.setInt(3, pageCount);
+			psmt.setString(2, mId);
+			psmt.setInt(3, start);
+			psmt.setInt(4, pageCount);
 			rs = psmt.executeQuery();
 			
 			while(rs.next()) {
@@ -925,6 +943,120 @@ public class MsgDAO extends JDBConnect {
 		catch(Exception e) {
 			e.printStackTrace();
 			System.out.println("selectPageD error");
+		}
+		return pageList;
+	}
+	
+	public int selectCountI(String mId, Map map) {
+		int result=0;
+		String query = "select distinct count(*) from (";
+		
+		if(mId != null) {
+			if(map.get("searchField") != null) {
+				if(map.get("searchField").equals("RECEIVER") || map.get("searchField").equals("SENDER")) {
+					query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+							+ " from msg M where M.RECEIVER=? and M.MSG_IMP='IMP'"
+							+ " union all"
+							+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+							+ " from snd_msg S where S.SENDER=? and S.MSG_IMP='IMP'"
+							+ ") a join member MEM on MEM.M_ID="+map.get("searchField")+""
+							+ " where MEM.M_ID like '%"+map.get("searchWord")+"%'"
+							+ " or MEM.M_NAME like '%"+map.get("searchWord")+"%'";
+				} else {
+					query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+							+ " from msg M where M.RECEIVER=? and M.MSG_IMP='IMP'"
+							+ " union all"
+							+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+							+ " from snd_msg S where S.SENDER=? and S.MSG_IMP='IMP'"
+							+ ") a where "+map.get("searchField")+" like '%"+map.get("searchWord")+"%'";
+				}
+			} else {
+				query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+						+ " from msg M where M.RECEIVER=? and M.MSG_IMP='IMP'"
+						+ " union all"
+						+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+						+ " from snd_msg S where S.SENDER=? and S.MSG_IMP='IMP'"
+						+ ") a";
+			}
+		}
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, mId);
+			psmt.setString(2, mId);
+			rs = psmt.executeQuery();
+			if(rs.next()) {
+				result=rs.getInt(1);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectCountI error");
+		}
+		return result;
+	}
+	
+	public List<MsgDTO> selectPageI(String mId, int start, int pageCount, Map map){
+		List<MsgDTO> pageList = new Vector<MsgDTO>();
+		String query = "select distinct MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+				+ " from (";
+		
+		if(mId != null) {
+			if(map.get("searchField") != null) {
+				if(map.get("searchField").equals("RECEIVER") || map.get("searchField").equals("SENDER")) {
+					query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+							+ " from msg M where M.RECEIVER=? and M.MSG_IMP='IMP'"
+							+ " union all"
+							+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+							+ " from snd_msg S where S.SENDER=? and S.MSG_IMP='IMP'"
+							+ ") a join member MEM on MEM.M_ID="+map.get("searchField")+""
+							+ " where MEM.M_ID like '%"+map.get("searchWord")+"%'"
+							+ " or MEM.M_NAME like '%"+map.get("searchWord")+"%'";
+				} else {
+					query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+							+ " from msg M where M.RECEIVER=? and M.MSG_IMP='IMP'"
+							+ " union all"
+							+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+							+ " from snd_msg S where S.SENDER=? and S.MSG_IMP='IMP'"
+							+ ") a where "+map.get("searchField")+" like '%"+map.get("searchWord")+"%'";
+				}
+			} else {
+				query += " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+						+ " from msg M where M.RECEIVER=? and M.MSG_IMP='IMP'"
+						+ " union all"
+						+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+						+ " from snd_msg S where S.SENDER=? and S.MSG_IMP='IMP'"
+						+ ") a";
+			}
+		} query += " order by MSG_DATE desc limit ?, ?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			
+			psmt.setString(1, mId);
+			psmt.setString(2, mId);
+			psmt.setInt(3, start);
+			psmt.setInt(4, pageCount);
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				MsgDTO dto = new MsgDTO();
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+				
+				pageList.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectPageI error");
 		}
 		return pageList;
 	}

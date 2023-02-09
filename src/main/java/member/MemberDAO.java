@@ -1,13 +1,16 @@
 package member;
 
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
 import common.JDBConnect;
 
 public class MemberDAO extends JDBConnect {
 	
-	public MemberDTO getMemberDTO(String uId, String uPw) {
+	public MemberDTO getMemberDTO(String mId, String mPw) {
 		MemberDTO dto = new MemberDTO();
 		String query = "select M_ID, M_PW, M_NAME, M.T_CODE, T_NAME, M.P_CODE, P_NAME, M_CALL, M_ADDR, M_EMAIL, M_JOIN, M_LEADER"
 				+ " from team T inner join member M"
@@ -17,8 +20,8 @@ public class MemberDAO extends JDBConnect {
 		
 		try {
 			psmt = con.prepareStatement(query);
-			psmt.setString(1, uId);
-			psmt.setString(2, uPw);
+			psmt.setString(1, mId);
+			psmt.setString(2, mPw);
 			rs = psmt.executeQuery();
 			
 			if(rs.next()) {
@@ -76,17 +79,17 @@ public class MemberDAO extends JDBConnect {
 		return memberList;
 	}
 	
-	public String nameS(String sender) {
+	public String nameS(String mId) {
 		String query = "select distinct M_NAME from member M join msg S on M.M_ID=S.SENDER where M_ID=?";
-		String name=null;
+		String name = null;
 		
 		try {
 			psmt = con.prepareStatement(query);
-			psmt.setString(1, sender);
+			psmt.setString(1, mId);
 			rs=psmt.executeQuery();
 			
 			while(rs.next()) {			
-			name = rs.getString("M_NAME");
+				name = rs.getString("M_NAME");
 			}
 		}
 		catch(Exception e) {
@@ -96,17 +99,17 @@ public class MemberDAO extends JDBConnect {
 		return name;
 	}
 	
-	public String nameR(String receiver) {
+	public String nameR(String mId) {
 		String query = "select distinct M_NAME from member M join msg S on M.M_ID=S.RECEIVER where M_ID=?";
-		String name=null;
+		String name = null;
 		
 		try {
 			psmt = con.prepareStatement(query);
-			psmt.setString(1, receiver);
+			psmt.setString(1, mId);
 			rs=psmt.executeQuery();
 			
 			while(rs.next()) {			
-			name = rs.getString("M_NAME");
+				name = rs.getString("M_NAME");
 			}
 		}
 		catch(Exception e) {
@@ -116,27 +119,47 @@ public class MemberDAO extends JDBConnect {
 		return name;
 	}
 	
-	public void insertMember(MemberDTO dto) {
-		//id생성
-		String id = dto.getmId();
-		int idNum = 0 ;
+	public String nameT(String mId) {
+		String query = "select distinct T_NAME from team T join member M on M.T_CODE=T.T_CODE where M_ID=?";
+		String name = null;
 		
 		try {
-			psmt = con.prepareStatement("select count(*) from member where T_CODE=?");
-			psmt.setString(1, id);
-			rs = psmt.executeQuery();
-			rs.next();
-			idNum = rs.getInt(1) + 1;
-			System.out.println(idNum);
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, mId);
+			rs=psmt.executeQuery();
+			
+			while(rs.next()) {
+				name = rs.getString("T_NAME");
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			System.out.println("insertMember -ID 생성 중- error");
+			System.out.println("nameR error");
 		}
-		id += String.format("%02d", idNum);
-		dto.setmId(id);
+		return name;
+	}
+	
+	public String nameP(String mId) {
+		String query = "select distinct P_NAME from positions P join member M on M.P_CODE=P.P_CODE where M_ID=?";
+		String name = null;
 		
-		//데이터 삽입
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, mId);
+			rs=psmt.executeQuery();
+			
+			while(rs.next()) {			
+				name = rs.getString("P_NAME");
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("nameP error");
+		}
+		return name;
+	}
+	
+	public void insertMember(MemberDTO dto) {
 		String query = "insert into member("
 				+ "M_ID, M_PW, M_NAME, T_CODE, P_CODE, M_CALL, M_ADDR, M_EMAIL, M_JOIN, M_LEADER"
 				+ ") VALUES (?,?,?,?,?,?,?,?,?,?)";
@@ -158,9 +181,49 @@ public class MemberDAO extends JDBConnect {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			System.out.println("insertMember -SQL insert- error");
+			System.out.println("insertMember error");
 		}
 		
+	}
+	
+	public MemberDTO idCheck(String id) {
+		MemberDTO dto = new MemberDTO();
+		String query = "select M_ID from member where M_ID=?";
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, id);
+			rs = psmt.executeQuery();
+			
+			if(rs.next()) {
+				dto.setmId(rs.getString("M_ID"));
+				
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("idCheck error");
+		}
+		return dto;
+	}
+	
+	public MemberDTO qIdCheck(String id) {
+		MemberDTO dto = new MemberDTO();
+		String query = "select M_ID from q_member where M_ID=?";
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, id);
+			rs = psmt.executeQuery();
+			
+			if(rs.next()) {
+				dto.setmId(rs.getString("M_ID"));
+				
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("idCheck error");
+		}
+		return dto;
 	}
 	
 	public void updateMember(MemberDTO dto) {
@@ -247,5 +310,151 @@ public class MemberDAO extends JDBConnect {
 			return null;
 		}
 	    return mCall.replaceAll(regEx, "$1-$2-$3");
+	}
+	
+	public int selectCount() {
+		int result=0;
+		String query = "select count(*) from member";
+		
+		try {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(query);
+			if(rs.next()) {
+				result=rs.getInt(1);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectCount error");
+		}
+		return result;
+	}
+	
+	
+	public List<MemberDTO> memberPage(int start, int pageCount) {
+		List<MemberDTO> memberList = new Vector<MemberDTO>();
+		String query = "select * from team T join member M on M.T_CODE=T.T_CODE"
+				+ " join positions P on M.P_CODE=P.P_CODE"
+				+ " order by M.T_CODE limit ?, ?";
+		
+		try {
+			psmt = con.prepareStatement(query);	
+			psmt.setInt(1, start);
+			psmt.setInt(2, pageCount);
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				MemberDTO dto = new MemberDTO();
+				dto.setmId(rs.getString("M_ID"));
+				dto.setmPw(rs.getString("M_PW"));
+				dto.setmName(rs.getString("M_NAME"));
+				dto.settCode(rs.getString("T_CODE"));
+				dto.setpCode(rs.getString("P_CODE"));
+				dto.setmCall(rs.getString("M_CALL"));
+				dto.setmAddr(rs.getString("M_ADDR"));
+				dto.setmEmail(rs.getString("M_EMAIL"));
+				dto.setmJoin(rs.getDate("M_JOIN"));
+				dto.setmLeader(rs.getBoolean("M_LEADER"));
+				dto.settName(rs.getString("T_NAME"));
+				dto.setpName(rs.getString("P_NAME"));
+				
+				memberList.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("memberPage error");
+		}
+		return memberList;
+	}
+	
+	public int selectQCount() {
+		int result=0;
+		String query = "select count(*) from q_member";
+		
+	
+		try {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(query);
+			if(rs.next()) {
+				result=rs.getInt(1);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectQCount error");
+		}
+		return result;
+	}
+	
+	
+	public List<MemberDTO> memberQPage(int start, int pageCount) {
+		List<MemberDTO> memberList = new Vector<MemberDTO>();
+		String query = "select * from team T join q_member Q on Q.T_CODE=T.T_CODE join positions P on Q.P_CODE=P.P_CODE order by Q.T_CODE limit ?, ?";
+		
+
+		try {
+			psmt = con.prepareStatement(query);	
+			psmt.setInt(1, start);
+			psmt.setInt(2, pageCount);
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				MemberDTO dto = new MemberDTO();
+				dto.setmId(rs.getString("M_ID"));
+				dto.setmName(rs.getString("M_NAME"));
+				dto.settCode(rs.getString("T_CODE"));
+				dto.setpCode(rs.getString("P_CODE"));
+				dto.setmCall(rs.getString("M_CALL"));
+				dto.setmJoin(rs.getDate("M_JOIN"));
+				dto.setmQuit(rs.getDate("M_QUIT"));
+				dto.settName(rs.getString("T_NAME"));
+				dto.setpName(rs.getString("P_NAME"));
+				
+				memberList.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("memberQPage error");
+		}
+		return memberList;
+	}
+	
+	public int insertQMember(MemberDTO dto, Date quit) {
+		String query="insert into q_member values (?,?,?,?,?,?,?)";
+		int result=0;
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, dto.getmId());
+			psmt.setString(2, dto.getmName());
+			psmt.setString(3, dto.gettCode());
+			psmt.setString(4, dto.getpCode());
+			psmt.setString(5, dto.getmCall());
+			psmt.setDate(6, dto.getmJoin());
+			psmt.setDate(7, quit);
+			result = psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("insertQMember error");
+		}
+		return result;	
+	}
+	
+	public void deleteMember(String mId, String mPw) {
+		String query = "delete from member where M_ID=? and M_PW=?";
+
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, mId);
+			psmt.setString(2, mPw);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("deleteMember error");
+		}
 	}
 }

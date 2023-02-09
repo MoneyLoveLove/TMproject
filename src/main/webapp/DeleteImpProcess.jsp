@@ -7,8 +7,10 @@
 	request.setCharacterEncoding("utf-8");
 	int MsgCode = Integer.parseInt(request.getParameter("code"));
 	MsgDAO dao = new MsgDAO();
-	
 	MsgDTO dto = dao.selectImpViewR(MsgCode);
+	MsgDTO dtoS = dao.selectImpViewS(MsgCode);
+	
+	
 	if(dto.getMsgTitle() != null) {
 		dao.insertToDelMsg(MsgCode);
 		dao.deleteMsg(MsgCode);

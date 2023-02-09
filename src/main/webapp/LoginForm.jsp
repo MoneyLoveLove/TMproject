@@ -1,11 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<jsp:include page="CSS.jsp"></jsp:include>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Team Messenger</title>
+<jsp:include page="CSS.jsp"></jsp:include>
 </head>
 <body style="background:#5882FA">
 
@@ -78,7 +78,7 @@
 				</div>
 	
 				<div class="col-md-auto">
-					<a href="Logout.jsp" onclick="logoutMsg()"
+					<a href="LogoutProcess.jsp" onclick="logoutMsg()"
 						class="btn btn-link" style="border:lightgray 1px solid">로그아웃</a>
 				</div>
 			</div>

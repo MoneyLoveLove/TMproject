@@ -7,12 +7,19 @@
 	request.setCharacterEncoding("utf-8");
 	int chkCode = Integer.parseInt(request.getParameter("sendCode"));
 	MsgDAO dao = new MsgDAO();
+	MsgDTO dto = dao.selectView(chkCode);
+	MsgDTO dtoS = dao.selectImpViewS(chkCode);
 	
 	if(request.getHeader("referer").matches("(.*)RCV(.*)")) {
 		dao.updateNm(chkCode);
 		response.sendRedirect("MSG_RCV.jsp");
 	} else if(request.getHeader("referer").matches("(.*)IMP(.*)")) {
-		dao.updateNm(chkCode);
+		if(dto.getMsgTitle() != null) {
+			dao.updateNm(chkCode);
+			if(dtoS.getMsgTitle() != null) {
+				dao.updateNmS(chkCode);
+			}
+		}
 		response.sendRedirect("MSG_IMP.jsp");
 	} else if(request.getHeader("referer").matches("(.*)SND(.*)")) {
 		dao.updateNmS(chkCode);

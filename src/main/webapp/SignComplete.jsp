@@ -1,11 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<jsp:include page="CSS.jsp"></jsp:include>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Team Messenger</title>
+<jsp:include page="CSS.jsp"></jsp:include>
 </head>
 <body style="background:#5882FA">
 

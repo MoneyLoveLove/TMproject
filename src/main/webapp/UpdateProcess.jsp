@@ -40,6 +40,10 @@
 	MemberDAO dao = new MemberDAO();
 	dao.updateMember(dto);
 	
-	response.sendRedirect("Profile.jsp");
+	if(request.getHeader("referer").matches("(.*)Admin(.*)")) {
+		response.sendRedirect("AdminPage.jsp");
+	} else {
+		response.sendRedirect("MyProfile.jsp");
+	}
 %>
 

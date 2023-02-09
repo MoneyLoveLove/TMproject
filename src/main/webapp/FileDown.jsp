@@ -9,19 +9,25 @@
 <%@ page import="msg.MsgDTO" %>
 
 <%
-	int MsgCode = Integer.parseInt(request.getParameter("MsgCode"));
+	int MsgCode = Integer.parseInt(request.getParameter("code"));
+	String uri = request.getParameter("uriV").toString();
 	MsgDAO dao = new MsgDAO();
-	MsgDTO dto = dao.selectView(MsgCode);
+	MsgDTO dto;
 	
-	/*
-	if(request.getParameter("uri").toString().matches("(.*)SND(.*)")) {
+	if(uri.matches("(.*)RCV(.*)")) {
+		dto = dao.selectView(MsgCode);
+	} else if(uri.matches("(.*)IMP(.*)")) {
+		dto = dao.selectImpViewR(MsgCode);
+		if(dto.getMsgTitle() == null) {
+			dto = dao.selectImpViewS(MsgCode);
+		}
+	} else if(uri.matches("(.*)SND(.*)")) {
 		dto = dao.selectSndView(MsgCode);
-	} else if(request.getParameter("uri").toString().matches("(.*)DEL(.*)")) {
+	} else if(uri.matches("(.*)DEL(.*)")) {
 		dto = dao.selectDelView(MsgCode);
-	} else if(request.getParameter("uri").toString().matches("(.*)IMP(.*)")) {
-		dto = dao.selectImpView(MsgCode);
+	} else {
+		return;
 	}
-	*/
 	
 	String MsgFName = dto.getMsgFName();
 	String MsgFPath = dto.getMsgFPath() + MsgFName;

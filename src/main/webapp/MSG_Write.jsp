@@ -15,12 +15,12 @@
 	dao.close();
 %>
 
-<jsp:include page="CSS.jsp"></jsp:include>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Team Messenger</title>
+<jsp:include page="CSS.jsp"></jsp:include>
 </head>
 <body style="overflow:hidden">
 
@@ -30,17 +30,20 @@
 <script>
 	function writeMsg() {
 		var form = document.writeForm;
-		if(form.receiver.value == "") {
+		if(!form.receiver.value) {
 			alert("받는 사람을 선택해주세요.");
-			form.receiver.focus();
 			return false;
-		} else if(form.title.value == "") {
+		} else if(!form.title.value) {
 			alert("제목을 입력해주세요.");
-			form.title.focus();
 			return false;
-		} else if(form.content.value == "") {
+		} else if(form.title.value.length > 60) {
+			alert("제목은 최대 60자까지 입력해주세요.");
+			return false;
+		} else if(!form.content.value) {
 			alert("내용을 입력해주세요.");
-			form.content.focus();
+			return false;
+		} else if(form.title.value.length > 2000) {
+			alert("내용은 최대 2000자까지 입력해주세요.");
 			return false;
 		} else {
 			alert("메세지가 전송되었습니다.");
