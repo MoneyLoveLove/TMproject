@@ -7,10 +7,11 @@ public class MsgDTO {
 	private String msgReceiver;
 	private String msgTitle;
 	private String msgContent;
-	private java.sql.Date msgDate;
+	private java.sql.Timestamp msgDate;
 	private String msgFName;
 	private String msgFPath;
-
+	private String msgImp;
+	private boolean msgOpen;
 	
 	public int getMsgCode() {
 		return msgCode;
@@ -42,10 +43,10 @@ public class MsgDTO {
 	public void setMsgContent(String msgContent) {
 		this.msgContent = msgContent;
 	}
-	public java.sql.Date getMsgDate() {
+	public java.sql.Timestamp getMsgDate() {
 		return msgDate;
 	}
-	public void setMsgDate(java.sql.Date msgDate) {
+	public void setMsgDate(java.sql.Timestamp msgDate) {
 		this.msgDate = msgDate;
 	}
 	public String getMsgFName() {
@@ -60,8 +61,17 @@ public class MsgDTO {
 	public void setMsgFPath(String msgFPath) {
 		this.msgFPath = msgFPath;
 	}
-
-	
-	
+	public String getMsgImp() {
+		return msgImp;
+	}
+	public void setMsgImp(String msgImp) {
+		this.msgImp = msgImp;
+	}
+	public boolean isMsgOpen() {
+		return msgOpen;
+	}
+	public void setMsgOpen(boolean msgOpen) {
+		this.msgOpen = msgOpen;
+	}
 	
 }

@@ -23,7 +23,7 @@
 		param.put("searchWord", searchWord);
 	}	
 
-	int count = dao.selectCountR(mId, param);
+	int count = dao.selectCountI(mId, param);
 	String tempStart = request.getParameter("page");
 	int startPage = 0;
 	int onePageCount = 10;	// 10개씩 출력	
@@ -32,7 +32,7 @@
 		startPage = (Integer.parseInt(tempStart)-1)*onePageCount;
 	}
 	
-	List<MsgDTO> msgList = dao.selectPageR(mId, startPage, onePageCount, param);
+	List<MsgDTO> msgList = dao.selectPageI(mId, startPage, onePageCount, param);
 	
 	dao.close();
 %>
@@ -165,19 +165,19 @@
 <nav class="navbar">
 <div class="container">
 	<div class="col-md-12" align="left" style="margin:30px 0px 40px 0px">
-		<h1 class="display-3">받은 메세지</h1>
+		<h1 class="display-3">중요 메세지</h1>
 	</div>
 	
 	<div class="row" style="width:100%">
 		<div class="col-md-12">
 			
 			<!-- 메세지 검색 -->
-			<form name="searchForm" method="get">
+			<form method="get">  
 			    <table width="100%">
 				    <tr>
-						<td>
+						<td align="right">
 							<select name="searchField" class="form-control"
-									style="width:120px; float:left; margin-right:10px">
+								style="width:120px; float:left; margin-right:10px">
 								<option value="SENDER">보낸 사람</option>
 								<option value="RECEIVER">받는 사람</option>
 								<option value="MSG_TITLE">제목</option>
@@ -242,13 +242,13 @@
 						if(searchWord != null) {
 					%>
 						<input type="button" value="<%=i %>" class="btn btn-secondary"
-							onclick="location.href='MSG_RCV.jsp?page=<%=i%>&searchField=<%=searchField%>&searchWord=<%=searchWord%>';"
+							onclick="location.href='MSG_IMP.jsp?page=<%=i%>&searchField=<%=searchField%>&searchWord=<%=searchWord%>';"
 							style="border-radius:100px; width:40px; height:40px;
 							align-items:center; justify-content:center;
 							background:#D8D8D8; border:NONE; font-weight:bold">
 					<% } else { %>
 						<input type="button" value="<%=i %>" class="btn btn-secondary"
-							onclick="location.href='MSG_RCV.jsp?page=<%=i%>';"
+							onclick="location.href='MSG_IMP.jsp?page=<%=i%>';"
 							style="border-radius:100px; width:40px; height:40px;
 							align-items:center; justify-content:center;
 							background:#D8D8D8; border:NONE; font-weight:bold">
@@ -261,7 +261,7 @@
 				<div>
 				
 			</form>
-    
+			    
 		</div>
 	</div>
 </div>

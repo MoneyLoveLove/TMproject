@@ -13,18 +13,18 @@ public class JDBConnect {
 	public PreparedStatement psmt;
 	public ResultSet rs;
 	
-	public JDBConnect() {		// DB 연결 생성자
+	public JDBConnect() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			String url="jdbc:mysql://localhost:3306/tmdb";		
+			String url="jdbc:mysql://localhost:3306/tmdb";
 			String id = "root";
 			String pwd = "1234";
 			con = DriverManager.getConnection(url, id, pwd);
 			
-			System.out.println("DB연결 성공");
+			System.out.println("DB Connection Successfully");
 		}
 		catch(Exception e) {
-			System.out.println("DB연결 실패");
+			System.out.println("Disconnected");
 			e.printStackTrace();
 		}
 	}
@@ -36,7 +36,7 @@ public class JDBConnect {
 			if(psmt != null) psmt.close();
 			if(con != null) con.close();
 			
-			System.out.println("자원 해제");
+			System.out.println("Closed");
 		}
 		catch(Exception e){
 			e.printStackTrace();

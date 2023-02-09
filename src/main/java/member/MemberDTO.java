@@ -6,13 +6,14 @@ public class MemberDTO {
 	private String mPw;
 	private String mName;
 	private String tCode;
+	private String tName;
 	private String pCode;
+	private String pName;
 	private String mCall;
 	private String mAddr;
 	private String mEmail;
 	private java.sql.Date mJoin;
 	private boolean mLeader;
-	
 	
 	public String getmId() {
 		return mId;
@@ -38,11 +39,23 @@ public class MemberDTO {
 	public void settCode(String tCode) {
 		this.tCode = tCode;
 	}
+	public String gettName() {
+		return tName;
+	}
+	public void settName(String tName) {
+		this.tName = tName;
+	}
 	public String getpCode() {
 		return pCode;
 	}
 	public void setpCode(String pCode) {
 		this.pCode = pCode;
+	}
+	public String getpName() {
+		return pName;
+	}
+	public void setpName(String pName) {
+		this.pName = pName;
 	}
 	public String getmCall() {
 		return mCall;
@@ -74,7 +87,5 @@ public class MemberDTO {
 	public void setmLeader(boolean mLeader) {
 		this.mLeader = mLeader;
 	}
-	
-	
-	
+
 }

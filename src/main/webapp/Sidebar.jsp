@@ -1,21 +1,39 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+    
+<jsp:include page="CSS.jsp"></jsp:include>
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 <meta charset="UTF-8">
 <title>Team Messenger</title>
 </head>
 <body>
 
-<div>
-	<ul class="list-unstyled" align="left" style="width:270px; height:100vh; float:left; background:orange; padding:20px">
-		<li style="padding:10px"><a href="MSG_Write.jsp">메세지 작성</a></li>
-		<li style="padding:10px"><a href="MSG_RCV.jsp">받은 메세지</a></li>
-		<li style="padding:10px"><a href="MSG_IMP.jsp">중요 메세지</a></li>
-		<li style="padding:10px"><a href="MSG_Send.jsp">보낸 메세지</a></li>
-		<li style="padding:10px"><a href="MSG_Delete.jsp">휴지통</a></li>
+<div style="float:left">
+	<ul class="list-unstyled" align="center"
+		style="width:250px; height:200vh; padding-top:56px; background:whitesmoke">
+		
+		<li><button type="button" onclick="location.href='MSG_Write.jsp';"
+			style="width:200px; margin-bottom:30px"
+			class="btn btn-primary">메세지 작성</button></li>
+			
+		<li><button type="button" onclick="location.href='MSG_RCV.jsp';"
+			style="width:100%; height:46px; border:NONE; background:NONE; color:#1E90FF"
+			class="btn btn-default">받은 메세지</button></li>
+		
+		<li><button type="button" onclick="location.href='MSG_IMP.jsp';"
+			style="width:100%; height:46px; border:NONE; background:NONE; color:#1E90FF"
+			class="btn btn-default">중요 메세지</button></li>
+		
+		<li><button type="button" onclick="location.href='MSG_SND.jsp';"
+			style="width:100%; height:46px; border:NONE; background:NONE; color:#1E90FF"
+			class="btn btn-default">보낸 메세지</button></li>
+		
+		<li><button type="button" onclick="location.href='MSG_DEL.jsp';"
+			style="width:100%; height:46px; border:NONE; background:NONE; color:#1E90FF"
+			class="btn btn-default">휴지통</button></li>
+	
 	</ul>
 </div>
 

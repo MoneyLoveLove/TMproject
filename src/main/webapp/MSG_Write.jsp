@@ -1,28 +1,28 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ page import="java.util.ArrayList" %>
 <%@ page import = "member.MemberDTO" %>
 <%@ page import = "member.MemberDAO" %>
-<%@ page import="java.util.ArrayList" %>
 
 <%
-	String userId = session.getAttribute("id").toString();
-	String userPw = session.getAttribute("pw").toString();
+	String mId = session.getAttribute("id").toString();
+	String mPw = session.getAttribute("pw").toString();
 	String userName = session.getAttribute("name").toString();
 	
 	MemberDAO dao = new MemberDAO();
-	MemberDTO memberDTO = dao.getMemberDTO(userId, userPw);
-	ArrayList<MemberDTO> memberList = dao.getAllMember();
+	ArrayList<MemberDTO> memberList = dao.getMember();
 	
 	dao.close();
 %>
-	
+
+<jsp:include page="CSS.jsp"></jsp:include>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Team Messenger</title>
 </head>
-<body>
+<body style="overflow:hidden">
 
 <jsp:include page="Sidebar.jsp"></jsp:include>
 <jsp:include page="Top.jsp"></jsp:include>
@@ -31,86 +31,93 @@
 	function writeMsg() {
 		var form = document.writeForm;
 		if(form.receiver.value == "") {
-			alert("receiver null");
+			alert("받는 사람을 선택해주세요.");
 			form.receiver.focus();
 			return false;
 		} else if(form.title.value == "") {
-			alert("title null");
+			alert("제목을 입력해주세요.");
 			form.title.focus();
 			return false;
 		} else if(form.content.value == "") {
-			alert("content null");
+			alert("내용을 입력해주세요.");
 			form.content.focus();
 			return false;
 		} else {
-			alert("message send");
+			alert("메세지가 전송되었습니다.");
 			form.action = "WriteProcess.jsp";
-			form.method="post"
+			form.method = "post"
 			form.submit();
 		}
 	}
 </script>
 
+<nav class="navbar">
 <div class="container">
-	<div class="col-sm-auto" align="left">
+	<div class="col-md-12" align="left" style="margin:30px 0px 40px 0px">
 		<h1 class="display-3">메세지 작성</h1>
 	</div>
 	
-	<div class="row">
-		<div class="col-sm-auto">
-			<!-- if -->
-			<form name="writeForm">
-				<table class="table" width="100%" align="center">
-					<tr align="center">
-						<td align="center">보내는 사람</td>
-						<td align="left">
+	<div class="row" style="width:100%">
+		<div class="col-md-12">
+		
+			<form name="writeForm" enctype="Multipart/form-data">
+				<table class="table" width="100%" style="border-bottom:lightgray 1px solid">
+					<tr>
+						<td width="140px">보내는 사람</td>
+						<td>
 							<%=session.getAttribute("name") %>
 						</td>
 					</tr>
-					<tr align="center">
-						<td align="center">받는 사람</td>
-						<td align="left">
+					<tr>
+						<td style="vertical-align:initial">받는 사람</td>
+						<td style="vertical-align:initial">
 							<% if(memberList.isEmpty()) { %>
-								<span>null</span>
+								<span>(받는 사람 정보 없음)</span>
 							<% } else { %>
-								<select name="receiver" class="form-control">
+							<select name="receiver" class="form-control">
 							<%
 								for(int i=0; i<memberList.size(); i++) {
 									MemberDTO member = memberList.get(i);
 							%>
 								<option value="<%=member.getmId() %>">
-									<%=member.gettCode() %>
+									[<%=member.gettName() %>]
 										<%=member.getmName() %>
-											<%=member.getpCode() %></option>
+											<%=member.getpName() %></option>
 							<% } } %>
-								</select>
+							</select>
 						</td>
 					</tr>
 					<tr>
-						<td align="center">제목</td>
-						<td align="left">
+						<td style="vertical-align:initial">제목</td>
+						<td style="vertical-align:initial">
 							<input type="text" name="title" placeholder="제목"
-							class="form-control" width="200px">
+									class="form-control" width="200px">
 						</td>
 					</tr>
 					<tr>
-						<td align="center">내용</td>
-						<td align="left">
-							<textarea name="content" rows="20" cols="50"
-							placeholder="내용" class="form-control"></textarea>
+						<td style="vertical-align:initial">내용</td>
+						<td style="vertical-align:initial">
+							<textarea name="content" rows="14" cols="40"
+									placeholder="내용" class="form-control"
+									style="resize:NONE"></textarea>
 						</td>
 					</tr>
-					<tr align="right">
-						<td></td>
-						<td><input type="submit" value="보내기" onclick="writeMsg()"
-							class="btn btn-primary"></td>
-						</tr>
+					<tr>
+						<td style="vertical-align:initial">첨부파일</td>
+						<td style="vertical-align:initial">
+							<input type="file" name="fileName">
+						</td>
+					</tr>
 				</table>
+					
+				<input type="submit" value="보내기" onclick="writeMsg()"
+						class="btn btn-primary" style="float:right">
 			</form>
-			<!-- else -->
+			
 		</div>
 	</div>
 </div>
+</nav>
 
 </body>
 </html>

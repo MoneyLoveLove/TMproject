@@ -1,64 +1,310 @@
 package msg;
 
-import java.util.ArrayList;
+import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import common.JDBConnect;
-import member.MemberDTO;
 
 public class MsgDAO extends JDBConnect {
+
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ insert key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 	
-	// �޽��� �ۼ�
-	public int insertMsg(MsgDTO dto) {
-		int result = 0;
+	public void insertMsg(MsgDTO dto) {
+		String query = "insert into msg (SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_FNAME, MSG_FPATH) value(?,?,?,?,?,?)";
 		
-		String query = "insert into msg (SENDER, RECEiVER, MSG_TITLE, MSG_CNT) value(?,?,?,?)";
 		try {
 			psmt = con.prepareStatement(query);
 			psmt.setString(1, dto.getMsgSender());
 			psmt.setString(2, dto.getMsgReceiver());
 			psmt.setString(3, dto.getMsgTitle());
 			psmt.setString(4, dto.getMsgContent());
+			psmt.setString(5, dto.getMsgFName());
+			psmt.setString(6,  dto.getMsgFPath());
 		
-			
-			result = psmt.executeUpdate();
+			psmt.executeUpdate();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			System.out.println("�޽��� msg T �Է� �� ���� �߻�");
-		}
-		return result;		
+			System.out.println("insertMsg error");
+		}		
 	}
-		
-	// ���� �޽��� ����
-//	public int insertSndMsg(MsgDTO dto) {
-//		int result = 0;
-//		
-//		String query = "insert into msg (SENDER, RECEiVER, MSG_TITLE, MSG_CNT) value(?,?,?,?)";
-//		try {
-//			psmt = con.prepareStatement(query);
-//			psmt.setString(1, dto.getMsgSender());
-//			psmt.setString(2, dto.getMsgReceiver());
-//			psmt.setString(3, dto.getMsgTitle());
-//			psmt.setString(4, dto.getMsgContent());
-//			
-//			result = psmt.executeUpdate();
-//		}
-//		catch(Exception e) {
-//			e.printStackTrace();
-//			System.out.println("�޽��� snd_msg T �Է� �� ���� �߻�");
-//		}
-//		return result;		
-//	}
 	
-	// �޽��� view
+	public void insertSndMsg(MsgDTO dto) {
+		String query = "insert into snd_msg (SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_FNAME, MSG_FPATH) value(?,?,?,?,?,?)";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, dto.getMsgSender());
+			psmt.setString(2, dto.getMsgReceiver());
+			psmt.setString(3, dto.getMsgTitle());
+			psmt.setString(4, dto.getMsgContent());
+			psmt.setString(5, dto.getMsgFName());
+			psmt.setString(6, dto.getMsgFPath());
+			
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("insertSndMsg error");
+		}
+	}
+	
+	public void insertToDelMsg(int MsgCode) {
+		String query = "insert into del_msg("
+					+ "SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH)"
+					+ " select SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH from msg where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("insertToDelMsg error");
+		}
+	}
+	
+	public void insertToDelMsgFromSnd(int MsgCode) {
+		String query = "insert into del_msg("
+					+ "MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH)"
+					+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH from snd_msg where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("insertToDelMsgFromSnd error");
+		}
+	}
+	
+	public void insertCheckToDel(String chkCode) {
+		String[] checkArr = chkCode.split("-");
+		String query = "insert into del_msg("
+					+ "MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH)"
+					+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH from msg where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			if(checkArr != null && checkArr.length > 0) {
+				for(int i=0; i<checkArr.length; i++) {
+					psmt.setInt(1, Integer.parseInt(checkArr[i]));
+					psmt.executeUpdate();
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("insertCheckToDel error");
+		}
+	}
+	
+	public void insertCheckToDelS(String chkCode) {
+		String[] checkArr = chkCode.split("-");
+		String query = "insert into del_msg("
+					+ "MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH)"
+					+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH from snd_msg where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			if(checkArr != null && checkArr.length > 0) {
+				for(int i=0; i<checkArr.length; i++) {
+					psmt.setInt(1, Integer.parseInt(checkArr[i]));
+					psmt.executeUpdate();
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("insertCheckToDelS error");
+		}
+	}
+	
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ delete key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+	public void deleteMsg(int MsgCode) {
+		String query = "delete from msg where MSG_CODE=?";
+
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("deleteMsg error");
+		}
+	}
+
+	public void deleteSndMsg(int MsgCode) {
+		String query = "delete from snd_msg where MSG_CODE=?";
+
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("deleteSndMsg error");
+		}
+	}
+	
+	public void deleteCheck(String chkCode) {
+		String[] checkArr = chkCode.split("-");
+		String query = "delete from msg where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			if(checkArr != null && checkArr.length > 0) {
+				for(int i=0; i<checkArr.length; i++) {
+					psmt.setInt(1, Integer.parseInt(checkArr[i]));
+					psmt.executeUpdate();
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("deleteCheck error");
+		}
+	}
+	
+	public void deleteCheckS(String chkCode) {
+		String[] checkArr = chkCode.split("-");
+		String query = "delete from snd_msg where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			if(checkArr != null && checkArr.length > 0) {
+				for(int i=0; i<checkArr.length; i++) {
+					psmt.setInt(1, Integer.parseInt(checkArr[i]));
+					psmt.executeUpdate();
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("deleteCheckS error");
+		}
+	}
+	
+	public void killChk(String chkCode) {
+		String[] checkArr = chkCode.split("-");
+		String query = "delete from del_msg where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			if(checkArr != null && checkArr.length > 0) {
+				for(int i=0; i<checkArr.length; i++) {
+					psmt.setInt(1, Integer.parseInt(checkArr[i]));
+					psmt.executeUpdate();
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("killChk error");
+		}
+	}
+	
+	public void killMsg(int MsgCode) {
+		String query = "delete from del_msg where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("killMsg error");
+		}
+	}
+	
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ select key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	
+	/* paging, search 메소드로 대체
+	 * 
 	public List<MsgDTO> selectMsg(String mId) {
 		List<MsgDTO> msgList = new Vector<>();
-		
 		String query = "select * from msg";
+		
 		if(mId != null) {
 			query += " where RECEIVER = '" + mId + "'";
+		} query += " order by MSG_DATE desc";
+		
+		try {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(query);
+			
+			while(rs.next()) {
+				MsgDTO dto = new MsgDTO();
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getDate("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+				dto.setMsgOpen(rs.getBoolean("MSG_OPENED"));
+				
+				msgList.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectMsg error");
+		}
+		return msgList;
+	}
+	
+	public List<MsgDTO> selectImpMsg(String mId) {
+		List<MsgDTO> msgList = new Vector<>();
+		String query = "select * from msg where MSG_IMP='IMP'";
+		
+		if(mId != null) {
+			query += " and RECEIVER = '" + mId + "'";
+		} query += " order by MSG_DATE desc";
+		
+		try {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(query);
+			
+			while(rs.next()) {
+				MsgDTO dto = new MsgDTO();
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getDate("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+				
+				msgList.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectImpMsg error");
+		}
+		return msgList;
+	}
+	
+	public List<MsgDTO> selectSndMsg(String mId) {
+		List<MsgDTO> msgList = new Vector<>();
+		String query = "select * from snd_msg";
+		
+		if(mId != null) {
+			query += " where SENDER = '" + mId + "'";
 		} query += " order by MSG_DATE desc";
 		
 		try {
@@ -81,25 +327,25 @@ public class MsgDAO extends JDBConnect {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
+			System.out.println("selectSndMsg error");
 		}
 		return msgList;
 	}
 	
-	// �󼼺���
-	public MsgDTO selectView(int MsgCode) {
-		MsgDTO dto = new MsgDTO();
+	public List<MsgDTO> selectDelMsg(String mId) {
+		List<MsgDTO> msgList = new Vector<>();
 		
-		String query = "select * from msg ";
-			query += " where MSG_CODE =" + MsgCode ;
-						
+		String query = "select * from del_msg";
+		if(mId != null) {
+			query += " where RECEIVER = '" + mId + "'";
+		} query += " order by MSG_CODE desc";
+		
 		try {
-			psmt = con.prepareStatement(query);
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(query);
 			
-			rs=psmt.executeQuery(); //���� ����
-			
-			
-			//��� ó��
-			if(rs.next()) {
+			while(rs.next()) {
+				MsgDTO dto = new MsgDTO();
 				dto.setMsgCode(rs.getInt("MSG_CODE"));
 				dto.setMsgSender(rs.getString("SENDER"));
 				dto.setMsgReceiver(rs.getString("RECEIVER"));
@@ -108,63 +354,581 @@ public class MsgDAO extends JDBConnect {
 				dto.setMsgDate(rs.getDate("MSG_DATE"));
 				dto.setMsgFName(rs.getString("MSG_FNAME"));
 				dto.setMsgFPath(rs.getString("MSG_FPATH"));
-			}
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		return dto;
-		
-	}
-	
-	
-	// ���̵𺰷� �޽��� ����Ʈ ���
-	public ArrayList<MsgDTO> getMsgById(String uId){
-		
-		ArrayList<MsgDTO> msgList = new ArrayList<>();
-		String query = "select * from msg where receiver=?";
-		
-		try {
-			psmt = con.prepareStatement(query);
-			psmt.setString(1, uId);
-			rs = psmt.executeQuery();
-			
-			while(rs.next()) {
-				MsgDTO dto = new MsgDTO();
-				dto.setMsgSender(rs.getString("SENDER"));
-				dto.setMsgTitle(rs.getString("MSG_TITLE"));
-				dto.setMsgContent(rs.getString("MSG_CNT"));
-				dto.setMsgDate(rs.getDate("MSG_DATE"));
-				dto.setMsgFName(rs.getString("MSG_FNAME"));
-				dto.setMsgFPath(rs.getString("MSG_FPATH"));
-							
+				
 				msgList.add(dto);
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
+			System.out.println("selectDelMsg error");
 		}
 		return msgList;
 	}
+	*
+	*/
 	
-	public int insertRcvMsg(MsgDTO dto) {
-		int result = 0;
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ view key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	
+	public MsgDTO selectView(int MsgCode) {
+		MsgDTO dto = new MsgDTO();
 		
-		String query = "insert into rcv_msg (SENDER, RCV_TITLE, RCV_CNT, RCV_DATE) value(?,?,?,?,)";
+		String query = "select * from msg where MSG_CODE=?";
+						
 		try {
 			psmt = con.prepareStatement(query);
-			psmt.setString(1, dto.getMsgSender());;
-			psmt.setString(2, dto.getMsgTitle());
-			psmt.setString(3, dto.getMsgContent());
-			psmt.setDate(4, dto.getMsgDate());		
+			psmt.setInt(1, MsgCode);
+			rs = psmt.executeQuery();
 			
-			result = psmt.executeUpdate();
+			if(rs.next()) {
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+				dto.setMsgOpen(rs.getBoolean("MSG_OPENED"));
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			System.out.println("�޽��� RCV_MSG T �Է� �� ���� �߻�");
+			System.out.println("selectView error");
 		}
-		return result;		
+		return dto;
+		
+	}
+	
+	public MsgDTO selectImpViewR(int MsgCode) {
+		MsgDTO dto = new MsgDTO();
+		
+		String query = "select * from msg where MSG_CODE=? and MSG_IMP='IMP'";
+						
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			rs = psmt.executeQuery();
+			
+			if(rs.next()) {
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+				dto.setMsgOpen(rs.getBoolean("MSG_OPENED"));
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectImpViewR error");
+		}
+		return dto;
+		
+	}
+	
+	public MsgDTO selectImpViewS(int MsgCode) {
+		MsgDTO dto = new MsgDTO();
+		
+		String query = "select * from snd_msg where MSG_CODE=? and MSG_IMP='IMP'";
+						
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			rs = psmt.executeQuery();
+			
+			if(rs.next()) {
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectImpViewS error");
+		}
+		return dto;
+		
+	}
+	
+	public MsgDTO selectDelView(int MsgCode) {
+		MsgDTO dto = new MsgDTO();
+		
+		String query = "select * from del_msg where MSG_CODE=?";
+						
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			rs = psmt.executeQuery();
+			
+			if(rs.next()) {
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectDelView error");
+		}
+		return dto;
+		
+	}
+	
+	public MsgDTO selectSndView(int MsgCode) {
+		MsgDTO dto = new MsgDTO();
+		
+		String query = "select * from snd_msg where MSG_CODE=?";
+						
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			rs = psmt.executeQuery();
+			
+			if(rs.next()) {
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectDelView error");
+		}
+		return dto;
+		
+	}
+	
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ new key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	
+	public int askNewMsg(String mId) {
+		int newMsg = 0;
+		String query = "select count(*) from msg where MSG_OPENED=false";
+		
+		if(mId != null) {
+			query += " and RECEIVER = '" + mId + "'";
+		}
+		
+		try {
+			psmt = con.prepareStatement(query);
+			rs = psmt.executeQuery();
+			if(rs.next()) {
+				newMsg = rs.getInt(1);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("askNewMsg error");
+		}
+		return newMsg;
+	}
+	
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ update key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	
+	public void openMsg(int MsgCode) {
+		String query = "update msg set MSG_OPENED=true where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("openMsg error");
+		}
+	}
+	
+	public void updateImp(int MsgCode) {
+		String query = "update msg set MSG_IMP='IMP' where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("updateImp error");
+		}
+	}
+	
+	public void updateNm(int MsgCode) {
+		String query = "update msg set MSG_IMP='NM' where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("updateNm error");
+		}
+	}
+	
+	public void updateImpS(int MsgCode) {
+		String query = "update snd_msg set MSG_IMP='IMP' where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("updateImp error");
+		}
+	}
+	
+	public void updateNmS(int MsgCode) {
+		String query = "update snd_msg set MSG_IMP='NM' where MSG_CODE=?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setInt(1, MsgCode);
+			psmt.executeUpdate();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("updateNm error");
+		}
+	}
+	
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ search key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	
+	public List<MsgDTO> searchMsg(Map<String, Object> map) {
+		List<MsgDTO> searchList = new Vector<>();
+		
+		String query = "select * from msg";
+		if(map.get("searchWord") != null) {
+			query += " where " + map.get("searchField")
+					+ " like '%" + map.get("searchWord") + "%'";
+		}
+		query += " order by MSG_DATE desc";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				MsgDTO dto = new MsgDTO();
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+				dto.setMsgOpen(rs.getBoolean("MSG_OPENED"));
+				
+				searchList.add(dto);
+			}
+		} catch(Exception e) {
+			System.out.println("searchMsg error");
+			e.printStackTrace();
+		}
+		return searchList;
+	}
+	
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ paging key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	
+	public int selectCountR(String mId, Map map) {
+		int result=0;
+		String query = "select count(*) from msg where RECEIVER=?";
+		
+		if(map.get("searchWord") != null) {
+			query += " and " + map.get("searchField") + " Like '%" + map.get("searchWord") + "%'"; 
+		}
+		
+		try {
+			psmt = con.prepareStatement(query);
+			
+			psmt.setString(1, mId);
+			rs = psmt.executeQuery();
+			if(rs.next()) {
+				result=rs.getInt(1);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectCountR error");
+		}
+		return result;
+	}
+	
+	public List<MsgDTO> selectPageR(String mId, int start, int pageCount, Map map){
+		List<MsgDTO> pageList = new Vector<MsgDTO>();
+		String query = "select * from msg"; 
+		
+		if(mId != null) {
+			query += " where RECEIVER = ? ";
+			if(map.get("searchWord") != null) {
+				query += " and " + map.get("searchField")
+						+ " like '%" + map.get("searchWord") + "%'";
+			}
+		} query += " order by MSG_DATE desc limit ?, ?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			
+			psmt.setString(1, mId);
+			psmt.setInt(2, start);
+			psmt.setInt(3, pageCount);
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				MsgDTO dto = new MsgDTO();
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+				dto.setMsgOpen(rs.getBoolean("MSG_OPENED"));
+				
+				pageList.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectPageR error");
+		}
+		return pageList;
+	}
+	
+	public int selectCountI(String mId, Map map) {
+		int result=0;
+		String query = "select count(*)"
+				+ " from ("
+				+ "select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+				+ " from msg where RECEIVER=? and MSG_IMP='IMP'"
+				+ " union all"
+				+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+				+ " from snd_msg where SENDER=? and MSG_IMP='IMP') a";
+		if(map.get("searchWord") != null) {
+			query += " where " + map.get("searchField") + " Like '%" + map.get("searchWord") + "%'"; 
+		}
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, mId);
+			psmt.setString(2, mId);
+			rs = psmt.executeQuery();
+			if(rs.next()) {
+				result=rs.getInt(1);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectCountI error");
+		}
+		return result;
+	}
+	
+	public List<MsgDTO> selectPageI(String mId, int start, int pageCount, Map map){
+		List<MsgDTO> pageList = new Vector<MsgDTO>();
+		String query = "select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+				+ " from ("
+				+ "select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+				+ " from msg";
+		
+		if(mId != null) {
+			query += " where RECEIVER=? and MSG_IMP='IMP'"
+					+ " union all"
+					+ " select MSG_CODE, SENDER, RECEIVER, MSG_TITLE, MSG_CNT, MSG_DATE, MSG_FNAME, MSG_FPATH, MSG_IMP"
+					+ " from snd_msg where SENDER=? and MSG_IMP='IMP') a";
+			if(map.get("searchWord") != null) {
+				query += " where " + map.get("searchField")
+						+ " like '%" + map.get("searchWord") + "%'";
+			}
+		} query += " order by MSG_DATE desc limit ?, ?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			
+			psmt.setString(1, mId);
+			psmt.setString(2, mId);
+			psmt.setInt(3, start);
+			psmt.setInt(4, pageCount);
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				MsgDTO dto = new MsgDTO();
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+				
+				pageList.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectPageI error");
+		}
+		return pageList;
+	}
+	
+	public int selectCountS(String mId, Map map) {
+		int result=0;
+		String query = "select count(*) from snd_msg where SENDER=?";
+		
+		if(map.get("searchWord") != null) {
+			query += " and " + map.get("searchField") + " Like '%" + map.get("searchWord") + "%'"; 
+		}
+		
+		try {
+			psmt = con.prepareStatement(query);
+			
+			psmt.setString(1, mId);
+			rs = psmt.executeQuery();
+			if(rs.next()) {
+				result=rs.getInt(1);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectCountS error");
+		}
+		return result;
+	}
+	
+	public List<MsgDTO> selectPageS(String mId, int start, int pageCount, Map map){
+		List<MsgDTO> pageList = new Vector<MsgDTO>();
+		String query = "select * from snd_msg"; 
+		
+		if(mId != null) {
+			query += " where SENDER = ? ";
+			if(map.get("searchWord") != null) {
+				query += " and " + map.get("searchField")
+						+ " like '%" + map.get("searchWord") + "%'";
+			}
+		} query += " order by MSG_DATE desc limit ?, ?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, mId);
+			psmt.setInt(2, start);
+			psmt.setInt(3, pageCount);
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				MsgDTO dto = new MsgDTO();
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				dto.setMsgImp(rs.getString("MSG_IMP"));
+				
+				pageList.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectPageS error");
+		}
+		return pageList;
 	}
 
+	public int selectCountD(String mId, Map map) {
+		int result=0;
+		String query = "select count(*) from del_msg where RECEIVER=?";
+		
+		if(map.get("searchWord") != null) {
+			query += " and " + map.get("searchField") + " Like '%" + map.get("searchWord") + "%'"; 
+		}
+		
+		try {
+			psmt = con.prepareStatement(query);
+			
+			psmt.setString(1, mId);
+			rs = psmt.executeQuery();
+			if(rs.next()) {
+				result=rs.getInt(1);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectCountD error");
+		}
+		return result;
+	}
+	
+	public List<MsgDTO> selectPageD(String mId, int start, int pageCount, Map map){
+		List<MsgDTO> pageList = new Vector<MsgDTO>();
+		String query = "select * from del_msg"; 
+		
+		if(mId != null) {
+			query += " where RECEIVER = ? ";
+			if(map.get("searchWord") != null) {
+				query += " and " + map.get("searchField")
+						+ " like '%" + map.get("searchWord") + "%'";
+			}
+		} query += " order by MSG_DATE desc limit ?, ?";
+		
+		try {
+			psmt = con.prepareStatement(query);
+			psmt.setString(1, mId);
+			psmt.setInt(2, start);
+			psmt.setInt(3, pageCount);
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				MsgDTO dto = new MsgDTO();
+				dto.setMsgCode(rs.getInt("MSG_CODE"));
+				dto.setMsgSender(rs.getString("SENDER"));
+				dto.setMsgReceiver(rs.getString("RECEIVER"));
+				dto.setMsgTitle(rs.getString("MSG_TITLE"));
+				dto.setMsgContent(rs.getString("MSG_CNT"));
+				dto.setMsgDate(rs.getTimestamp("MSG_DATE"));
+				dto.setMsgFName(rs.getString("MSG_FNAME"));
+				dto.setMsgFPath(rs.getString("MSG_FPATH"));
+				
+				pageList.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			System.out.println("selectPageD error");
+		}
+		return pageList;
+	}
+	
+// ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ recover key ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+	
 }
