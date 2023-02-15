@@ -15,11 +15,15 @@ JSP를 이용한 Team Messenger Web Program 입니다.
 - 민예지 : 기획 참여, 메인 개발, 전반적인 주요 기능 코딩, 프로그램 테스트, 프로젝트 발표  
 - 백미정 : 기획 참여, 서브 개발, 전반적인 기능(회원) 코딩, 기획 참여, 문서화
 
-### 개발 환경
+
+### :computer: 개발 환경
 - eclipseIDE (JDK 11.0.14)
 - Tomcat v9.0
 - MySQL
 
 
-### 개발 언어
+### :pencil2: 개발 언어
   <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white"> <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white"> <img src="https://img.shields.io/badge/bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white"> <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> <img src="https://img.shields.io/badge/jquery-0769AD?style=for-the-badge&logo=jquery&logoColor=white"> <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/jsp-F7DF1E?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/SQL-4FC08D?style=for-the-badge&logo=java&logoColor=white"> 
+
+
+### 주요 
